@@ -1,0 +1,47 @@
+# Sketch2Shape AI configuration. Change values here, not in code.
+seed: 42
+image_size: 512            # sketch map and diffusion resolution
+
+generation:
+  base_model: "stable-diffusion-v1-5/stable-diffusion-v1-5"
+  controlnet: "lllyasviel/control_v11p_sd15_scribble"
+  steps: 25
+  guidance_scale: 7.5
+  sketch_strength: 1.0      # ControlNet conditioning scale. Higher = follows sketch more
+  default_prompt: "a single object"
+  # Suffix and negative prompt push the model to draw ONE isolated object with no floor,
+  # podium or shadow. Those extras end up in the cut-out and ruin the 3D shape.
+  prompt_suffix: ", centered, entire object visible, three-quarter view, isolated on a pure white background, no floor, no shadow, no pedestal, soft even studio lighting, high detail"
+  negative_prompt: "multiple objects, text, watermark, cropped, cut off, clutter, blurry, low quality, background scene, podium, pedestal, platform, stand, floor, ground, shadow, reflection, table"
+  min_fidelity: 0.35        # best candidate below this -> one retry with stronger sketch conditioning
+  retry_strength: 1.5
+
+# One-click quality levels shown in the UI.
+# candidates = how many images are generated; the one that best matches the sketch is kept.
+quality_presets:
+  Fast:     {steps: 20, candidates: 1, mc_resolution: 192}
+  Balanced: {steps: 25, candidates: 3, mc_resolution: 256}
+  Best:     {steps: 30, candidates: 4, mc_resolution: 320}
+
+prepare:
+  foreground_ratio: 0.85    # object fills this share of the frame for reconstruction
+  min_part_share: 0.05      # keep cut-out parts at least this share of the largest part
+  erode_px: 1               # shave the mask edge to remove white halo
+
+reconstruct:
+  model: "triposr"          # triposr (safe baseline) | instantmesh (later upgrade)
+  triposr_repo: "stabilityai/TripoSR"
+  mc_resolution: 256        # default marching-cubes resolution (presets override it)
+  chunk_size: 8192          # lower this if you hit GPU out-of-memory
+
+mesh:
+  min_faces: 500
+  min_flatness_ratio: 0.08  # smallest bbox side / largest side. Below this = flat plane
+  max_file_mb: 50
+  keep_largest_component_share: 0.9
+  smooth_iterations: 10     # Taubin smoothing passes (0 = off). Removes marching-cubes stair-steps
+  orientation: "Auto (recommended)"
+
+paths:
+  outputs: "outputs"
+  weights: "weights"

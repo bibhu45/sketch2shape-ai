@@ -1,0 +1,20 @@
+# Application dependencies. torch is NOT listed: Colab and Kaggle already ship a CUDA build.
+# IMPORTANT: after the first working run, replace these with exact pins from
+#   pip freeze | grep -i -E "diffusers|transformers|accelerate|rembg|onnxruntime|trimesh|gradio|opencv|pillow|numpy|pyyaml|omegaconf"
+# and commit them. Pinned versions are worth reproducibility points.
+diffusers
+transformers
+accelerate
+safetensors
+rembg
+onnxruntime-gpu
+trimesh
+gradio
+opencv-python-headless
+pillow
+numpy
+pyyaml
+omegaconf
+einops
+huggingface_hub
+scikit-image
